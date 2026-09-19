@@ -75,10 +75,12 @@ which wraps this library.
 ```bash
 composer install
 composer test
+composer analyse
 ```
 
 The suite covers the documented rules, malformed input, generated valid numbers, and numbers whose
-intermediate checksum is negative. It runs on PHP 8.1 through 8.5 in CI.
+intermediate checksum is negative. CI runs it on PHP 8.1 through 8.5, along with PHPStan at its
+highest level.
 
 ## License
 

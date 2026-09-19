@@ -59,6 +59,7 @@ class TrCitizenNumberValidationTest extends TestCase
         }
     }
 
+    /** @return array<string, array{string}> */
     public static function validNumbers(): array
     {
         return [
@@ -68,6 +69,7 @@ class TrCitizenNumberValidationTest extends TestCase
         ];
     }
 
+    /** @return array<string, array{string}> */
     public static function invalidNumbers(): array
     {
         return [
@@ -90,6 +92,7 @@ class TrCitizenNumberValidationTest extends TestCase
         ];
     }
 
+    /** @return iterable<string> */
     private static function generate(int $count): iterable
     {
         mt_srand(20260919);
@@ -104,6 +107,7 @@ class TrCitizenNumberValidationTest extends TestCase
         }
     }
 
+    /** @return iterable<string> */
     private static function generateWithNegativeIntermediate(int $count): iterable
     {
         mt_srand(19920921);
@@ -128,6 +132,7 @@ class TrCitizenNumberValidationTest extends TestCase
         }
     }
 
+    /** @param list<int> $digits */
     private static function complete(array $digits): string
     {
         $odd = $digits[0] + $digits[2] + $digits[4] + $digits[6] + $digits[8];
