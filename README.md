@@ -1,42 +1,85 @@
-# Tr Citizen Number Validation Class
+# Turkish Citizen Number Validation
 
 <p align="center">
-<a href="https://packagist.org/packages/X-Adam/tr-citizen-number-validation" rel="nofollow"><img src="https://img.shields.io/packagist/v/X-Adam/tr-citizen-number-validation" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/X-Adam/tr-citizen-number-validation" rel="nofollow"><img src="https://img.shields.io/packagist/dt/X-Adam/tr-citizen-number-validation" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/X-Adam/tr-citizen-number-validation" rel="nofollow"><img src="https://poser.pugx.org/X-Adam/tr-citizen-number-validation/dependents.svg" alt="Dependents"></a>
-<a href="https://packagist.org/packages/X-Adam/tr-citizen-number-validation" rel="nofollow"><img src="https://img.shields.io/packagist/l/X-Adam/tr-citizen-number-validation" alt="License"></a>
+<a href="https://github.com/X-Adam/tr-citizen-number-validation/actions/workflows/tests.yml"><img src="https://github.com/X-Adam/tr-citizen-number-validation/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+<a href="https://packagist.org/packages/x-adam/tr-citizen-number-validation" rel="nofollow"><img src="https://img.shields.io/packagist/v/x-adam/tr-citizen-number-validation" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/x-adam/tr-citizen-number-validation" rel="nofollow"><img src="https://img.shields.io/packagist/php-v/x-adam/tr-citizen-number-validation" alt="PHP Version"></a>
+<a href="https://packagist.org/packages/x-adam/tr-citizen-number-validation" rel="nofollow"><img src="https://img.shields.io/packagist/dt/x-adam/tr-citizen-number-validation" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/x-adam/tr-citizen-number-validation" rel="nofollow"><img src="https://img.shields.io/packagist/l/x-adam/tr-citizen-number-validation" alt="License"></a>
 </p>
 
-<p align="center">
-<a href="https://scrutinizer-ci.com/g/X-Adam/tr-citizen-number-validation/build-status/master" rel="nofollow"><img src="https://scrutinizer-ci.com/g/X-Adam/tr-citizen-number-validation/badges/quality-score.png?b=master" title="Scrutinizer Code Quality"></a>
-<a href="https://styleci.io/repos/321765771" rel="nofollow"><img src="https://styleci.io/repos/321765771/shield?branch=master" alt="StyleCI"></a>
-</p>
-
-## Introduction
-
-Turkey citizen number (TC No) validation class.
+Offline validation for Turkish citizen numbers (T.C. Kimlik No). Zero dependencies, a single static
+method, and no network access — the number is checked against the official checksum rules.
 
 ## Requirements
 
-PHP >=7.4. Other than that, this library has no requirements.
+PHP 8.1 or higher. Nothing else.
 
-## Install
+## Installation
 
 ```bash
-$ composer require x-adam/tr-citizen-number-validation:"~4"
+composer require x-adam/tr-citizen-number-validation
 ```
 
-## Example Usage
+## Usage
 
 ```php
-include "./vendor/autoload.php";
+use XAdam\TrCitizenNumberValidation;
 
-$result = XAdam\TrCitizenNumberValidation::validate(12345678901);
-var_dump($result);
-
-# Result: bool(false)
+TrCitizenNumberValidation::validate(10000000146);   // true
+TrCitizenNumberValidation::validate('10000000146'); // true
+TrCitizenNumberValidation::validate('12345678901'); // false
 ```
+
+Both `int` and `string` are accepted, so values coming straight from a request need no casting or
+pre-filtering. Anything that is not a well-formed citizen number — letters, empty strings,
+surrounding whitespace, wrong length — returns `false` instead of throwing:
+
+```php
+TrCitizenNumberValidation::validate('not a number'); // false
+TrCitizenNumberValidation::validate('');             // false
+TrCitizenNumberValidation::validate('1709281905');   // false (10 digits)
+```
+
+## What it checks
+
+A Turkish citizen number is 11 digits long and carries two check digits:
+
+| Rule | Description |
+|------|-------------|
+| Length and range | Exactly 11 digits, the first one cannot be `0` |
+| 10th digit | `((d1 + d3 + d5 + d7 + d9) × 7 − (d2 + d4 + d6 + d8)) mod 10` |
+| 11th digit | `(d1 + … + d10) mod 10` |
+
+Because the 11th digit is always the result of `8 × (d1 + d3 + d5 + d7 + d9) mod 10`, every valid
+number ends with an even digit — the library rejects odd endings up front.
+
+## What it does not check
+
+This library answers **"is this a well-formed citizen number?"**, not **"does this number belong to
+this person?"**. The latter requires querying the Identity Sharing System (KPS) of the Turkish
+Directorate of Population and Citizenship Affairs; the formerly public NVİ endpoint was shut down on
+30 September 2025, and verification against official records is now only available to institutions
+with a KPS membership.
+
+Use this library to reject malformed input early — before storing it, or before paying for a lookup.
+
+## Laravel
+
+For a ready-made `tr_citizen_number` validation rule, see
+[x-laravel/validation-tr-citizen-number-extend](https://packagist.org/packages/x-laravel/validation-tr-citizen-number-extend),
+which wraps this library.
+
+## Testing
+
+```bash
+composer install
+composer test
+```
+
+The suite covers the documented rules, malformed input, generated valid numbers, and numbers whose
+intermediate checksum is negative. It runs on PHP 8.1 through 8.5 in CI.
 
 ## License
 
-This package is open source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Open source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
