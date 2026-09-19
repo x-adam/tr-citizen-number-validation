@@ -82,4 +82,4 @@ intermediate checksum is negative. It runs on PHP 8.1 through 8.5 in CI.
 
 ## License
 
-Open source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Open source software licensed under the [MIT license](LICENSE).
